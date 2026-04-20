@@ -11,7 +11,7 @@
             --bg: #121213; --card: #1a1a1b; --text: #ffffff; --border: #3a3a3c;
             --primary: #538d4e;   /* Correct - 초록 */
             --secondary: #b59f3b; /* Present - 노랑 */
-            --absent: #e74c3c;    /* Wrong - 빨강 */
+            --absent: #e74c3c;    /* Wrong - 빨강 (성윤 님 요청) */
             --selected: #3498db; --empty: #121213;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Pretendard', sans-serif; }
@@ -71,7 +71,7 @@
     <div class="card" id="signup-box" style="display:none;">
         <h1>SIGN UP</h1>
         <input type="text" id="signup-id" placeholder="사용할 ID">
-        <input type="text" id="signup-nick" placeholder="닉네임 (한글 가능)">
+        <input type="text" id="signup-nick" placeholder="닉네임">
         <input type="password" id="signup-pw" placeholder="PIN (4자)">
         <button class="btn-main" style="background:var(--secondary)" onclick="handleSignup()">가입 완료</button>
         <button class="btn-sub" onclick="toggleAuth(false)">로그인으로 돌아가기</button>
@@ -136,22 +136,24 @@
 </div>
 
 <script>
-    /* --- Firebase Config --- */
+    /* --- 성윤 님 전용 Firebase 설정 --- */
     const firebaseConfig = {
-        apiKey: "AIzaSyD6xJKL3wVZKiQMedMkN0wF1zmTeEpKa6s",
-        authDomain: "wordpiece-609c1.firebaseapp.com",
-        projectId: "wordpiece-609c1",
-        storageBucket: "wordpiece-609c1.firebasestorage.app",
-        messagingSenderId: "652904425244",
-        appId: "1:652904425244:web:dc77b5f5b16e849824fcd9",
-        databaseURL: "https://wordpiece-609c1-default-rtdb.firebaseio.com/"
+      apiKey: "AIzaSyD4neOUzStsykwr3RO-pLr6-tzA07AcA68",
+      authDomain: "word-37dd2.firebaseapp.com",
+      projectId: "word-37dd2",
+      storageBucket: "word-37dd2.firebasestorage.app",
+      messagingSenderId: "853403657518",
+      appId: "1:853403657518:web:36b19b374b5b0a5edd06bf",
+      measurementId: "G-LDJ4SMD3GY",
+      databaseURL: "https://word-37dd2-default-rtdb.firebaseio.com/" // 👈 수동 추가함
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let currentUser = null, currentNick = "", rating = 0;
 
-    /* --- 단어장 데이터 (PD님 검수본) --- */
+    /* --- 마스터 단어 데이터 (성윤 PD님 전수 검수본) --- */
     const wordPool = {
         3: ["고구마", "사이다", "바나나", "코끼리", "도서관", "자동차", "자판기", "비행기", "다람쥐", "냉장고", "도시락", "무지개", "금메달", "박물관", "소방차", "구급차", "경찰차", "솜사탕", "종이컵", "목걸이", "귀걸이", "지팡이", "주머니", "돋보기", "신호등", "운동화", "손거울", "복사기", "전화기", "계산기", "선풍기", "세탁기", "청소기", "가습기", "제습기", "온도계", "습도계", "망원경", "현미경", "지구본", "나침반", "슬리퍼", "머리띠", "귀마개", "손수건", "비누곽", "샴푸통", "주차장", "편의점", "정류장"],
         4: ["고진감래", "감언이설", "동문서답", "사필귀정", "오리무중", "이심전심", "전화위복", "함흥차사", "유비무환", "작심삼일", "일석이조", "탁상공론", "결자해지", "권선징악", "자화자찬", "초지일관", "타산지석", "화룡점정", "대기만성", "낭중지물", "천고마비", "설상가상", "오매불망", "외유내강", "살신성인", "호가호위", "개과천선", "백발백중", "안하무인", "막상막하", "청천벽력", "금상첨화", "일편단심", "죽마고우", "온고지신", "사면초가", "천재일우", "명불허전", "풍전등화", "고군분투", "동고동락", "와신상담", "전전반측", "각골난망", "노심초사", "허장성세", "난형난제", "파죽지세", "승승장구", "다재다능"],
@@ -213,7 +215,7 @@
         document.getElementById('admin-screen').style.display = 'flex';
         db.ref('users').once('value').then(s => {
             let html = "<h4>유저 진도 현황</h4>";
-            Object.entries(s.val()).forEach(([id, u]) => {
+            if(s.exists()) Object.entries(s.val()).forEach(([id, u]) => {
                 html += `<div><b>${u.nickname}</b>(${id}): ${JSON.stringify(u.progress)}</div>`;
             });
             db.ref('reviews').once('value').then(rs => {
@@ -307,7 +309,7 @@
                         } else { char[targetPart] = it.shape; it.count--; if(it.count <= 0) selectedIdx = null; render(); }
                     }
                 } else {
-                    // [도로 빼기] 회수 로직
+                    // [회수/도로 빼기] 로직
                     ['cho','jung','jong'].forEach(t => {
                         if(char[t]) {
                             const comps = baseMap[char[t]] || char[t];
